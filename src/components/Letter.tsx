@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { buildLetter, LETTER_GROUNDS } from "../data";
+import { DeadlineTracker } from "./Deadline";
 import { CopyBtn, Reveal, SectionHead, Stamp } from "./ui";
 
 function Field({
@@ -178,6 +179,8 @@ export function Letter() {
             </div>
           </Reveal>
         </div>
+
+        <DeadlineTracker />
       </div>
     </section>
   );

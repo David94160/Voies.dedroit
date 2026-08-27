@@ -1,6 +1,7 @@
 import { Opening } from "./components/Opening";
 import { Routes } from "./components/Routes";
 import { Letter } from "./components/Letter";
+import { Host } from "./components/Host";
 import { Indexing } from "./components/Indexing";
 import { Guardrails, Footer } from "./components/Guardrails";
 
@@ -22,6 +23,7 @@ export default function App() {
           <Opening />
           <Routes />
           <Letter />
+          <Host />
           <Indexing />
           <Guardrails />
         </main>

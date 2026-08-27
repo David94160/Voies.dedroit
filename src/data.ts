@@ -277,6 +277,33 @@ ${fields.name || "[Nom complet]"}
 Pièce jointe recommandée : copie d'une pièce d'identité (Google la demande fréquemment pour vérifier la qualité du demandeur).`;
 }
 
+/* ---------- Modèle de notification DSA (art. 16, règl. UE 2022/2065) ---------- */
+
+export const DSA_TEMPLATE = `Objet : Notification au titre de l'article 16 du règlement (UE) 2022/2065 (DSA)
+
+Madame, Monsieur,
+
+En votre qualité de prestataire de services d'hébergement au sens du règlement (UE) 2022/2065, je vous notifie le(s) contenu(s) suivant(s) :
+
+  • [URL 1 — préciser]
+  • [URL 2 — préciser]
+
+Exposé des motifs :
+
+[Exposé précis, daté et vérifiable : faits contestés, pièces jointes numérotées (démentis, documents d'identité, décision ou affidavit — en précisant la nature exacte de chaque pièce).]
+
+Je vous demande, conformément à l'article 16 du DSA, de traiter la présente notification de manière diligente, objective et non arbitraire. En cas de refus ou d'action partielle, je vous remercie de me notifier la décision motivée prévue à l'article 17 ainsi que les voies de réclamation disponibles (articles 17 et 20 du DSA).
+
+Coordonnées du notificateur : [nom, qualité — en son nom propre ou mandataire —, adresse e-mail].
+
+Pièces jointes : [liste datée].
+
+Déclaration de bonne foi et d'exactitude des informations fournies, conformément à l'article 16.2 du DSA.
+
+[Signature — date]
+
+Rappel utile : le DSA ne fixe aucun délai chiffré de réponse à l'hébergeur ; invoquer un « délai de 72 h » affaiblirait la notification. La valeur du dispositif tient à la décision motivée, qui fonde le cas échéant un référé ou un signalement au coordinateur national (Arcom en France).`;
+
 /* ============================================================
    SECTION 03 — Soumission propre à la Search Console
    ============================================================ */
