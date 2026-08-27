@@ -1,12 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
-/* ---------- hook : élément visible dans le viewport ---------- */
+/* ---------- détection d'entrée dans le viewport ---------- */
 export function useInView<T extends HTMLElement>(threshold = 0.18) {
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
@@ -23,32 +17,13 @@ export function useInView<T extends HTMLElement>(threshold = 0.18) {
           }
         });
       },
-      { threshold, rootMargin: "0px 0px -8% 0px" }
+      { threshold, rootMargin: "0px 0px -6% 0px" }
     );
     obs.observe(node);
     return () => obs.disconnect();
   }, [threshold]);
 
   return { ref, inView };
-}
-
-/* ---------- hook : compteur animé ---------- */
-export function useCountUp(target: number, start: boolean, duration = 1300) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    let raf = 0;
-    const t0 = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - t0) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setVal(target * eased);
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [start, target, duration]);
-  return val;
 }
 
 /* ---------- révélation au scroll ---------- */
@@ -73,6 +48,40 @@ export function Reveal({
   );
 }
 
+/* ---------- tampon qui claque ---------- */
+export function Stamp({
+  children,
+  tone,
+  rot = "-4deg",
+  className = "",
+  delay = 0,
+}: {
+  children: ReactNode;
+  tone: "red" | "green" | "amber" | "blue";
+  rot?: string;
+  className?: string;
+  delay?: number;
+}) {
+  const { ref, inView } = useInView<HTMLSpanElement>(0.4);
+  const color =
+    tone === "red"
+      ? "text-stamp"
+      : tone === "green"
+        ? "text-green"
+        : tone === "amber"
+          ? "text-amber"
+          : "text-royal";
+  return (
+    <span
+      ref={ref}
+      className={`stamp inline-block text-[11px] whitespace-nowrap ${color} ${className} ${inView ? "stamp-in" : "opacity-0"}`}
+      style={{ "--rot": rot, animationDelay: `${delay}ms` } as CSSProperties}
+    >
+      {children}
+    </span>
+  );
+}
+
 /* ---------- en-tête de section ---------- */
 export function SectionHead({
   no,
@@ -83,36 +92,69 @@ export function SectionHead({
   no: string;
   kicker: string;
   title: ReactNode;
-  sub?: string;
+  sub?: ReactNode;
 }) {
   return (
-    <Reveal className="mb-12 md:mb-16">
+    <Reveal className="mb-10 md:mb-14">
       <div className="flex items-center gap-4 mb-5">
-        <span className="font-mono text-[11px] tracking-[0.22em] text-tox">
-          SECTION {no}
+        <span className="font-mono text-[11px] tracking-[0.22em] text-stamp font-semibold">
+          § {no}
         </span>
         <span className="h-px flex-1 bg-line" />
         <span className="mono-label">{kicker}</span>
       </div>
-      <h2 className="font-display font-800 font-extrabold uppercase leading-[0.98] text-3xl sm:text-4xl lg:text-[3.3rem] tracking-tight max-w-4xl">
+      <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl leading-[1.02] tracking-tight max-w-4xl text-inkdeep">
         {title}
       </h2>
       {sub && (
-        <p className="mt-5 max-w-2xl text-fog text-[15px] leading-relaxed">
-          {sub}
-        </p>
+        <div className="mt-5 max-w-2xl text-fog text-[15px] leading-relaxed">{sub}</div>
       )}
     </Reveal>
   );
 }
 
+/* ---------- anneau de progression ---------- */
+export function ProgressRing({ pct }: { pct: number }) {
+  const r = 26;
+  const c = 2 * Math.PI * r;
+  return (
+    <svg width="72" height="72" viewBox="0 0 72 72" aria-label={`${pct} % de la checklist complétée`}>
+      <circle cx="36" cy="36" r={r} fill="none" stroke="#d3dbd3" strokeWidth="5" />
+      <circle
+        cx="36"
+        cy="36"
+        r={r}
+        fill="none"
+        stroke={pct === 100 ? "#1e7d46" : "#1b3c9c"}
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeDasharray={c}
+        strokeDashoffset={c * (1 - pct / 100)}
+        transform="rotate(-90 36 36)"
+        style={{ transition: "stroke-dashoffset 0.7s cubic-bezier(0.2,0.7,0.2,1), stroke 0.4s" }}
+      />
+      <text
+        x="36"
+        y="41"
+        textAnchor="middle"
+        fontFamily="IBM Plex Mono, monospace"
+        fontSize="14"
+        fontWeight="600"
+        fill="#182530"
+      >
+        {Math.round(pct)}%
+      </text>
+    </svg>
+  );
+}
+
 /* ---------- bouton copier ---------- */
-export function CopyBtn({ text, light = false }: { text: string; light?: boolean }) {
+export function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const onCopy = useCallback(() => {
+  const onCopy = () => {
     const done = () => {
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
+      window.setTimeout(() => setCopied(false), 1700);
     };
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(text).then(done).catch(done);
@@ -129,17 +171,15 @@ export function CopyBtn({ text, light = false }: { text: string; light?: boolean
       document.body.removeChild(ta);
       done();
     }
-  }, [text]);
+  };
 
   return (
     <button
       onClick={onCopy}
-      className={`group inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase px-3 py-2 border transition-all duration-300 cursor-pointer ${
-        light
-          ? "border-paperink/30 text-paperink hover:bg-paperink hover:text-paper"
-          : copied
-            ? "border-ok/60 text-ok bg-ok/10"
-            : "border-line2 text-fog hover:text-bone hover:border-fog"
+      className={`cursor-pointer inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.16em] uppercase px-4 py-2.5 border transition-all duration-300 ${
+        copied
+          ? "border-green text-green bg-green/10"
+          : "border-ink/30 text-ink hover:bg-ink hover:text-paper"
       }`}
     >
       {copied ? (
@@ -155,25 +195,9 @@ export function CopyBtn({ text, light = false }: { text: string; light?: boolean
             <rect x="3.5" y="3.5" width="7" height="7" stroke="currentColor" strokeWidth="1.2" />
             <path d="M8.5 3.5v-2h-7v7h2" stroke="currentColor" strokeWidth="1.2" />
           </svg>
-          Copier
+          Copier la lettre
         </>
       )}
     </button>
-  );
-}
-
-/* ---------- jauge de toxicité ---------- */
-export function ToxicMeter({ level }: { level: number }) {
-  return (
-    <div className="flex items-center gap-1" title={`Toxicité ${level}/5`} aria-label={`Toxicité ${level} sur 5`}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span
-          key={i}
-          className={`w-[7px] h-[14px] skew-x-[-12deg] ${
-            i <= level ? (level >= 5 ? "bg-tox" : "bg-amb") : "bg-line"
-          }`}
-        />
-      ))}
-    </div>
   );
 }
