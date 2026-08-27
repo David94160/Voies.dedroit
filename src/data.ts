@@ -276,3 +276,105 @@ ${fields.name || "[Nom complet]"}
 
 Pièce jointe recommandée : copie d'une pièce d'identité (Google la demande fréquemment pour vérifier la qualité du demandeur).`;
 }
+
+/* ============================================================
+   SECTION 03 — Soumission propre à la Search Console
+   ============================================================ */
+
+export const PY_CODE = `"""
+indexing.py — Demander à Google l'indexation de VOS pages, proprement.
+
+UNE seule tâche : déclarer un sitemap à la Search Console pour une
+propriété vérifiée dont vous êtes titulaire. Google reste seul juge du
+crawl, de l'indexation et du classement.
+
+Pourquoi pas l'Indexing API (urlNotifications.publish) ?
+    Elle est RÉSERVÉE aux offres d'emploi et contenus en direct.
+    L'utiliser pour du contenu général est contraire à ses conditions
+    d'usage : la notification est ignorée. Pour une page générale,
+    la voie sanctionnée est : sitemap + Search Console + inspection
+    d'URL. (Le « ping » google.com/ping est déprécié depuis 06/2023.)
+
+Dépendances :
+    pip install google-api-python-client google-auth
+"""
+
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+_SCOPES = ["https://www.googleapis.com/auth/webmasters"]
+
+
+def soumettre_sitemap(site_url: str, sitemap_url: str, compte_de_service: str) -> dict:
+    """
+    Déclare un sitemap à la Search Console pour une propriété vérifiée.
+
+    Args:
+        site_url:          "https://www.exemple.fr/" ou "sc-domain:exemple.fr"
+        sitemap_url:       "https://www.exemple.fr/sitemap.xml"
+        compte_de_service: chemin vers la clé JSON du service account
+                           autorisé sur la propriété.
+
+    Returns:
+        {"statut": "soumis", "site": ..., "sitemap": ...}
+
+    Raises:
+        HttpError: propriété non vérifiée ou sitemap injoignable.
+    """
+    creds = service_account.Credentials.from_service_account_file(
+        compte_de_service, scopes=_SCOPES
+    )
+    service = build("webmasters", "v3", credentials=creds)
+
+    # Réussit silencieusement ; toute erreur lève une HttpError.
+    service.sitemaps().submit(siteUrl=site_url, feedpath=sitemap_url).execute()
+
+    return {"statut": "soumis", "site": site_url, "sitemap": sitemap_url}
+
+
+if __name__ == "__main__":
+    import json, sys
+
+    if len(sys.argv) != 4:
+        print("usage: python indexing.py <site> <sitemap> <cle.json>")
+        sys.exit(1)
+
+    print(json.dumps(soumettre_sitemap(*sys.argv[1:]), indent=2, ensure_ascii=False))`;
+
+/* ---------- générateur de sitemap.xml ---------- */
+
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+export function buildSitemap(domain: string, paths: string[]): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const base = (domain.trim().replace(/\/+$/, "") || "https://www.votre-domaine.fr");
+  const urls =
+    paths.length > 0
+      ? paths
+          .map((p) => (p.startsWith("http") ? p : `${base}/${p.replace(/^\/+/, "")}`))
+          .map((u) => escapeXml(u))
+      : [escapeXml(base + "/")];
+
+  const entries = urls
+    .map(
+      (u) => `  <url>
+    <loc>${u}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`
+    )
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries}
+</urlset>`;
+}
