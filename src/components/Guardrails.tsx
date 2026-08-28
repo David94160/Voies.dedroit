@@ -65,7 +65,7 @@ export function Guardrails() {
   return (
     <section id="garde-fous" className="mx-auto max-w-6xl px-5 sm:px-8 pt-20 sm:pt-28 pb-16">
       <SectionHead
-        no="05"
+        no="06"
         kicker="Garde-fous"
         title={
           <>

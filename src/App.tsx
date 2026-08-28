@@ -1,5 +1,6 @@
 import { Opening } from "./components/Opening";
 import { Routes } from "./components/Routes";
+import { Registry } from "./components/Registry";
 import { Letter } from "./components/Letter";
 import { Host } from "./components/Host";
 import { Indexing } from "./components/Indexing";
@@ -22,6 +23,7 @@ export default function App() {
         <main>
           <Opening />
           <Routes />
+          <Registry />
           <Letter />
           <Host />
           <Indexing />

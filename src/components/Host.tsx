@@ -92,7 +92,7 @@ export function Host() {
   return (
     <section id="hebergeur" className="mx-auto max-w-6xl px-5 sm:px-8 pt-20 sm:pt-28">
       <SectionHead
-        no="03"
+        no="04"
         kicker="Levier serveur — règlement (UE) 2022/2065"
         title={
           <>

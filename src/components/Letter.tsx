@@ -52,7 +52,7 @@ export function Letter() {
     <section id="lettre" className="bg-paperdeep/60 border-y border-line mt-20 sm:mt-28">
       <div className="mx-auto max-w-6xl px-5 sm:px-8 py-16 sm:py-24">
         <SectionHead
-          no="02"
+          no="03"
           kicker="Le levier ouvert — art. 17 RGPD"
           title={
             <>

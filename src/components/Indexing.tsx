@@ -190,7 +190,7 @@ export function Indexing() {
   return (
     <section id="indexation" className="mx-auto max-w-6xl px-5 sm:px-8 pt-20 sm:pt-28">
       <SectionHead
-        no="04"
+        no="05"
         kicker="Le geste propre — propriété vérifiée"
         title={
           <>
