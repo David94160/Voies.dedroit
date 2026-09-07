@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f3f5f2;
+  --color-paperdeep: #e8ece7;
+  --color-card: #fbfcfa;
+  --color-ink: #182530;
+  --color-inkdeep: #0d1720;
+  --color-royal: #1b3c9c;
+  --color-royaldeep: #122a6e;
+  --color-stamp: #c8351f;
+  --color-green: #1e7d46;
+  --color-greendeep: #145c33;
+  --color-amber: #a06a14;
+  --color-line: #d3dbd3;
+  --color-linesoft: #e2e8e1;
+  --color-fog: #5c6a72;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Archivo", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Menlo", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(27, 60, 156, 0.18);
+  color: var(--color-inkdeep);
+}
+
+section {
+  scroll-margin-top: 96px;
+}
+
+/* ------- ambiance papier officiel ------- */
+.bg-baselines {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    rgba(24, 37, 48, 0.045) 31px,
+    rgba(24, 37, 48, 0.045) 32px
+  );
+  background-size: 100% 32px;
+}
+
+.bg-noise-paper {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+}
+
+/* marge rouge de registre, côté gauche */
+.legal-margin::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: clamp(14px, 3.4vw, 52px);
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(200, 53, 31, 0),
+    rgba(200, 53, 31, 0.5) 8%,
+    rgba(200, 53, 31, 0.5) 92%,
+    rgba(200, 53, 31, 0)
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .legal-margin::before {
+    display: none;
+  }
+}
+
+/* ------- composants ------- */
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  box-shadow: 0 1px 0 rgba(24, 37, 48, 0.05), 0 14px 34px -26px rgba(13, 23, 32, 0.35);
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+/* tampon administratif */
+.stamp {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: currentColor;
+  border: 2.5px solid currentColor;
+  padding: 4px 12px;
+  border-radius: 4px;
+  mix-blend-mode: multiply;
+  position: relative;
+  opacity: 0.92;
+}
+.stamp::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+@keyframes stampIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.9) rotate(var(--rot, -6deg));
+  }
+  62% {
+    opacity: 0.95;
+    transform: scale(0.94) rotate(var(--rot, -6deg));
+  }
+  100% {
+    opacity: 0.92;
+    transform: scale(1) rotate(var(--rot, -6deg));
+  }
+}
+.stamp-in {
+  animation: stampIn 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* hachures "clos" */
+.hatched-red {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(200, 53, 31, 0.16) 0 6px,
+    transparent 6px 12px
+  );
+}
+.hatched-soft {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(24, 37, 48, 0.06) 0 5px,
+    transparent 5px 11px
+  );
+}
+
+/* ------- révélations au scroll ------- */
+.rv {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.rv-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* accordéon via grid rows */
+.acc-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.acc-body.open {
+  grid-template-rows: 1fr;
+}
+.acc-inner {
+  overflow: hidden;
+}
+
+/* barre de frise */
+.bar-grow {
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.bar-grow.on {
+  transform: scaleX(1);
+}
+
+input,
+textarea {
+  font-family: var(--font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .stamp-in,
+  .bar-grow {
+    animation: none !important;
+    transform: none !important;
+    opacity: 0.92;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
